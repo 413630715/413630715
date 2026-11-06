@@ -13,8 +13,16 @@ load_dotenv()
 app = Flask(__name__)
 
 # 從環境變數讀取 LINE 憑證，避免把金鑰寫死在程式碼中
-CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET")
-CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
+def get_required_setting(name):
+    value = os.getenv(name)
+    if not value:
+        raise RuntimeError(f"缺少必要的環境變數：{name}")
+    return value
+
+
+CHANNEL_SECRET = get_required_setting("LINE_CHANNEL_SECRET")
+CHANNEL_ACCESS_TOKEN = get_required_setting("LINE_CHANNEL_ACCESS_TOKEN")
+PORT = int(os.getenv("PORT", "8000"))
 
 configuration = Configuration(access_token=CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
@@ -48,4 +56,4 @@ def handle_message(event):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    app.run(host='0.0.0.0', port=PORT, debug=True)
